@@ -21,3 +21,19 @@ export async function generateQuiz(text) {
   }
 }
 
+
+// פונקציה ל־Multiple Choice
+export async function generateMultipleChoiceQuiz(text) {
+  const promptPath = path.join(__dirname, "..", "prompts", "multipleChoicePrompt.txt");
+  const prompt = fs.readFileSync(promptPath, "utf8");
+  const aiResponse = await callGeminiAnalyzeText(prompt, text);
+  return aiResponse;
+}
+
+// פונקציה ל־True/False
+export async function generateTrueFalseQuiz(text) {
+  const promptPath = path.join(__dirname, "..", "prompts", "trueFalsePrompt.txt");
+  const prompt = fs.readFileSync(promptPath, "utf8");
+  const aiResponse = await callGeminiAnalyzeText(prompt, text);
+  return aiResponse;
+}

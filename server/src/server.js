@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import studyRoutes from './routes/study.routes.js';
+import rolePlayRoutes from './routes/rolePlay.routes.js';
 
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/study', studyRoutes);
+app.use('/api/role-play', rolePlayRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

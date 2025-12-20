@@ -52,3 +52,17 @@ export async function callGeminiAnalyzeText(prompt, text) {
   }
 }
 
+export async function callGeminiRolePlay(prompt) {
+  try {
+    const response = await ai.models.generateContent({
+      model: "models/gemini-2.5-flash",
+      contents: [{ text: prompt }]
+    });
+
+    return response.text;
+  } catch (err) {
+    console.error("Gemini role play error:", err);
+    throw new Error("Failed to generate role play response");
+  }
+}
+
