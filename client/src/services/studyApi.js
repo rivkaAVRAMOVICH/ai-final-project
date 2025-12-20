@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3001/api/study",
+  baseURL: "http://localhost:3001/api/study", // לא 'server', אלא localhost
 });
 
 export const analyzeText = async (text) => {
