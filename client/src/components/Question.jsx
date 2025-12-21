@@ -1,14 +1,23 @@
-export default function Question({ question }) {
-  if (!question) return null; // אם אין אובייקט, לא מציגים כלום
+export default function Question({ question, selectedAnswer, onSelect }) {
+  if (!question) return null;
 
   return (
     <div className="question-card">
       <h3>{question.question}</h3>
-      <ul>
-        {question.options.map((opt, idx) => (
-          <li key={idx}>{opt}</li>
-        ))}
-      </ul>
+
+      {question.options.map((option, idx) => (
+        <label key={idx} style={{ display: "block", marginBottom: "8px" }}>
+          <input
+            type="radio"
+            name={`question-${question.id}`}
+            value={option}
+            checked={selectedAnswer === option}
+            onChange={() => onSelect(option)}
+          />
+          {" "}
+          {option}
+        </label>
+      ))}
     </div>
   );
 }
