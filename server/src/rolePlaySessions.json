@@ -90,5 +90,38 @@
         "text": "Oh, you rascal! *[I crouch down, arms open, a mix of relief and a tiny bit of exasperation on my face]* You gave me such a fright, running off like that! I'm so relieved you're back and safe, my brave little hunter. Come here, of course you can have cuddles! Get over here, you big fluffy thing!"
       }
     ]
+  },
+  {
+    "id": "5e3bff77-be9f-4a51-96b7-e57fe7c04942",
+    "roles": {
+      "A": "The Educational Psychologist",
+      "B": "The Teachers"
+    },
+    "messages": [
+      {
+        "role": "B",
+        "text": "מחייח"
+      },
+      {
+        "role": "A",
+        "text": "(מחייך בחזרה) \"שלום לך. מה נשמע?\""
+      },
+      {
+        "role": "B",
+        "text": "מה איתך?"
+      },
+      {
+        "role": "A",
+        "text": "בסדר גמור, תודה ששאלת. שמח לראות אותך!"
+      },
+      {
+        "role": "B",
+        "text": "תסביר לי את המאמר בקצרה"
+      },
+      {
+        "role": "A",
+        "text": "בשמחה! על איזה מאמר אתה רוצה שאסביר לך?"
+      }
+    ]
   }
 ]
