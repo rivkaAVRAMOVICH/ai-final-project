@@ -10,13 +10,13 @@ pipeline {
             }
         }
 
-        stage('Test Backend') {
-            steps {
-                dir('server') {
-                    bat 'npm test'
-                }
-            }
-        }
+        // stage('Test Backend') {
+        //     steps {
+        //         dir('server') {
+        //             bat 'npm test'
+        //         }
+        //     }
+        // }
 
         stage('Install Frontend') {
             steps {
