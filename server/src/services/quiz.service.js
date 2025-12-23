@@ -3,10 +3,14 @@ import path from "path";
 import { callGeminiAnalyzeText } from "./gemini.service.js";
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
-const promptPath = path.join(__dirname, "..", "prompts", "analyzeTextAndGenerateQuiz.txt");
+// const promptPath = path.join(__dirname, "..", "prompts", "analyzeTextAndGenerateQuiz.txt");
+
+// const basePrompt = fs.readFileSync(promptPath, "utf8");
+
+const promptPath = path.join(process.cwd(), "src", "prompts", "analyzeTextAndGenerateQuiz.txt");
 
 const basePrompt = fs.readFileSync(promptPath, "utf8");
 
@@ -24,7 +28,8 @@ export async function generateQuiz(text) {
 
 // פונקציה ל־Multiple Choice
 export async function generateMultipleChoiceQuiz(text) {
-  const promptPath = path.join(__dirname, "..", "prompts", "multipleChoicePrompt.txt");
+  // const promptPath = path.join(__dirname, "..", "prompts", "multipleChoicePrompt.txt");
+  const promptPath = path.join(process.cwd(), "src", "prompts", "multipleChoicePrompt.txt");
   const prompt = fs.readFileSync(promptPath, "utf8");
   const aiResponse = await callGeminiAnalyzeText(prompt, text);
   return aiResponse;
@@ -32,7 +37,8 @@ export async function generateMultipleChoiceQuiz(text) {
 
 // פונקציה ל־True/False
 export async function generateTrueFalseQuiz(text) {
-  const promptPath = path.join(__dirname, "..", "prompts", "trueFalsePrompt.txt");
+  // const promptPath = path.join(__dirname, "..", "prompts", "trueFalsePrompt.txt");
+  const promptPath = path.join(process.cwd(), "src", "prompts", "trueFalsePrompt.txt");
   const prompt = fs.readFileSync(promptPath, "utf8");
   const aiResponse = await callGeminiAnalyzeText(prompt, text);
   return aiResponse;
