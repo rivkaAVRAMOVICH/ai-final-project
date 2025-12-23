@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { sendRolePlayMessage, getRolePlayFeedback } from "../services/studyApi";
 import "../styles/rolePlayPage.css";
 import dingSound from "../assets/ding.mp3";
-import ReactMarkdown from "react-markdown";
+// import ReactMarkdown from "react-markdown";
 
 export default function RolePlayPage() {
     const navigate = useNavigate();
@@ -103,7 +103,8 @@ export default function RolePlayPage() {
                     >
                         <strong className="chat-role">{getRoleName(m.role)}:</strong>{" "}
                         <div className="chat-text">
-                            <ReactMarkdown>{m.text}</ReactMarkdown>
+                            {/* <ReactMarkdown>{m.text}</ReactMarkdown> */}
+                            <p>{m.text}</p>
                         </div>
                     </div>
                 ))}

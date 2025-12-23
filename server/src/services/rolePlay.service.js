@@ -4,9 +4,12 @@ import { fileURLToPath } from 'url';
 import { callGeminiRolePlay, callGeminiAnalyzeText } from './gemini.service.js';
 import { v4 as uuidv4 } from 'uuid';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const storagePath = path.join(__dirname, "..", "rolePlaySessions.json");
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+// const storagePath = path.join(__dirname, "..", "rolePlaySessions.json");
+
+const storagePath = path.join(process.cwd(), 'src', 'rolePlaySessions.json');
+
 
 // --- Save & Load Sessions ---
 function saveSession(session) {
@@ -28,7 +31,8 @@ function loadSession(sessionId) {
 
 // --- Start Role Play ---
 export async function startRolePlaySession(text) {
-  const promptPath = path.join(__dirname, "..", "prompts", "rolePlayPrompt.txt");
+  // const promptPath = path.join(__dirname, "..", "prompts", "rolePlayPrompt.txt");
+  const promptPath = path.join(process.cwd(), "src", "prompts", "rolePlayPrompt.txt");
   const promptTemplate = fs.readFileSync(promptPath, "utf8");
 
   const aiResponse = await callGeminiAnalyzeText(promptTemplate, text);
