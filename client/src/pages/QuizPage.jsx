@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import "../styles/quizPage.css";
 
 export default function QuizPage() {
   const location = useLocation();
@@ -11,11 +12,12 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [warning, setWarning] = useState("");
 
   if (!quizData) {
     return (
       <Card>
-        <h2>No quiz data found.</h2>
+        <h2 className="quiz-title">No quiz data found.</h2>
         <Button onClick={() => navigate("/")}>Go Back</Button>
       </Card>
     );
@@ -34,62 +36,76 @@ export default function QuizPage() {
     setSubmitted(true);
   };
 
+  const handleSubmitClick = () => {
+    const allAnswered = quizData.quiz.questions.every(
+      (q) => answers[q.id] !== undefined
+    );
+
+    if (!allAnswered) {
+      setWarning("Answer all questions first");
+      return;
+    }
+
+    setWarning("");
+    handleSubmitQuiz();
+  };
+
   return (
     <Card>
-      <h1>Quiz</h1>
+      <h1 className="quiz-title">Multiple Choice Quiz</h1>
+      <h3 className="quiz-subtitle">Choose the one correct answer from the options</h3>
 
       {quizData.quiz.questions.map((q) => {
-        // צבע רקע לכל שאלה אם הוגש המבחן
-        let backgroundColor = "";
+        let questionClass = "question-card";
         if (submitted) {
-          backgroundColor =
-            answers[q.id] === q.correct_answer ? "#d4edda" : "#f8d7da"; // ירוק בהיר או אדום בהיר
+          questionClass +=
+            answers[q.id] === q.correct_answer
+              ? " correct"
+              : " incorrect";
         }
 
         return (
-          <div
-            key={q.id}
-            className="question-card"
-            style={{ padding: "12px", borderRadius: "6px", marginBottom: "16px", backgroundColor }}
-          >
-            <h3>{q.question}</h3>
+          <div key={q.id} className={questionClass}>
+            <h3 className="question-text">{q.question}</h3>
 
-            {q.options.map((option, idx) => {
-              let color = "";
-              if (submitted) {
-                if (option === q.correct_answer) color = "green";
-                else if (answers[q.id] === option) color = "red";
-              }
+            <div className="options-list">
+              {q.options.map((option, idx) => {
+                let optionClass = "option-label";
 
-              return (
-                <label
-                  key={idx}
-                  style={{ display: "block", marginBottom: "8px", color }}
-                >
-                  <input
-                    type="radio"
-                    name={`question-${q.id}`}
-                    value={option}
-                    checked={answers[q.id] === option}
-                    onChange={() =>
-                      setAnswers((prev) => ({ ...prev, [q.id]: option }))
-                    }
-                    disabled={submitted}
-                  />{" "}
-                  {option}
-                </label>
-              );
-            })}
+                if (submitted) {
+                  if (option === q.correct_answer) optionClass += " correct-option";
+                  else if (answers[q.id] === option) optionClass += " wrong-option";
+                }
+
+                return (
+                  <label key={idx} className={optionClass}>
+                    <input
+                      type="radio"
+                      name={`question-${q.id}`}
+                      value={option}
+                      checked={answers[q.id] === option}
+                      onChange={() =>
+                        setAnswers((prev) => ({ ...prev, [q.id]: option }))
+                      }
+                      disabled={submitted}
+                    />
+                    <span>{option}</span>
+                  </label>
+                );
+              })}
+            </div>
           </div>
         );
       })}
 
+      {warning && <div className="warning-text">{warning}</div>}
+
       {!submitted ? (
-        <Button onClick={handleSubmitQuiz}>Submit Quiz</Button>
+        <Button onClick={handleSubmitClick}>Submit Quiz</Button>
       ) : (
-        <div>
+        <div className="score-box">
           <h2>
-            Your Score: {score} / {quizData.quiz.questions.length} 🏅
+            🏅 Your Score: {score} / {quizData.quiz.questions.length}
           </h2>
           <Button onClick={() => navigate("/")}>Back to Home</Button>
         </div>

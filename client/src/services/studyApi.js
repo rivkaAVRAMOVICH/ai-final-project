@@ -1,27 +1,3 @@
-// import axios from "axios";
-
-// const api = axios.create({
-//   baseURL: "http://localhost:3001/api/",
-// });
-
-// // פונקציה גנרית ליצירת מבחן לפי סוג
-// export const analyzeQuiz = async (text, type = "multiple-choice") => {
-//   try {
-//     // בונים את הנתיב לפי סוג
-//     const endpoint =
-//       type === "multiple-choice"
-//         ? "study/quiz/multiple-choice"
-//         : "study/quiz/true-false";
-
-//     const res = await api.post(endpoint, { text });
-//     console.log(`API response (${type}):`, res.data);
-//     return res.data;
-//   } catch (err) {
-//     console.error(`Error calling analyzeQuiz (${type}):`, err);
-//   }
-// };
-
-
 import axios from "axios";
 
 // אינסטנס אחד לכל ה־API, אפשר להפריד אם רוצים
@@ -73,6 +49,17 @@ export const sendRolePlayMessage = async (sessionId, message) => {
     return data;
   } catch (err) {
     console.error("Error sending role play message:", err);
+    throw err;
+  }
+};
+
+export const getRolePlayFeedback = async (sessionId) => {
+  if (!sessionId) return null;
+  try {
+    const { data } = await api.post("role-play/feedback", { sessionId });
+    return data;
+  } catch (err) {
+    console.error("Error fetching role play feedback:", err);
     throw err;
   }
 };

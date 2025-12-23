@@ -1,95 +1,165 @@
+
 import { useNavigate, useLocation } from "react-router-dom";
 import Card from "../components/Card";
 import Button from "../components/Button";
-import { useState, useEffect } from "react";
-import { sendRolePlayMessage } from "../services/studyApi";
+import { useState, useEffect, useRef } from "react";
+import { sendRolePlayMessage, getRolePlayFeedback } from "../services/studyApi";
+import "../styles/rolePlayPage.css";
+import dingSound from "../assets/ding.mp3";
+import ReactMarkdown from "react-markdown";
 
 export default function RolePlayPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { session } = location.state || {};
 
-    const [messages, setMessages] = useState([]);
+    const storageKey = `rolePlay_${session?.id}`; 
+
+    const [messages, setMessages] = useState(() => {
+        const saved = localStorage.getItem(storageKey);
+        return saved ? JSON.parse(saved) : (session?.messages || [{ role: "A", text: "Hello! Let's start our role play." }]);
+    });
+
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+    const [typing, setTyping] = useState(false);
+    const [feedback, setFeedback] = useState(null);
+    const [feedbackLoading, setFeedbackLoading] = useState(false);
 
-    // בהתחלה מציגים את ההודעה הראשונה של Gemini (role A) אם קיימת
+    const messagesEndRef = useRef(null);
+
+    // שמירת ההודעות בכל שינוי
     useEffect(() => {
-        if (session?.messages && session.messages.length > 0) {
-            setMessages(session.messages);
-        } else if (session) {
-            // אפשרות: אם אין הודעות, נתחיל עם ברכה של Gemini
-            setMessages([{ role: "A", text: "Hello! Let's start our role play." }]);
-        }
-    }, [session]);
+        localStorage.setItem(storageKey, JSON.stringify(messages));
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
     const handleSend = async () => {
         if (!input.trim()) return;
         setLoading(true);
+        setTyping(true);
+
         try {
-            const reply = await sendRolePlayMessage(session.id, input);
-            setMessages((prev) => [
-                ...prev,
-                { role: "B", text: input }, // המשתמש
-                reply // Gemini
-            ]);
+            const userMessage = { role: "B", text: input };
+            setMessages((prev) => [...prev, userMessage]);
             setInput("");
+
+            const reply = await sendRolePlayMessage(session.id, userMessage.text);
+
+            if (reply.role === "A") {
+                const audio = new Audio(dingSound);
+                audio.play();
+            }
+
+            setMessages((prev) => [...prev, reply]);
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
+            setTyping(false);
         }
     };
 
-    // פונקציה להמרת role ל־name
+    const handleBackHome = () => {
+        localStorage.removeItem(storageKey);
+        navigate("/");
+    };
+
+    const handleGetFeedback = async () => {
+        if (!session?.id) return;
+        setFeedbackLoading(true);
+        try {
+            const data = await getRolePlayFeedback(session.id);
+            setFeedback(data);
+        } catch (err) {
+            console.error("Error fetching feedback:", err);
+            setFeedback({ error: "Failed to get feedback" });
+        } finally {
+            setFeedbackLoading(false);
+        }
+    };
+
+    const handleClearConversation = () => {
+        setMessages([]);
+        setFeedbackLoading(false);
+        localStorage.removeItem(storageKey);
+    };
+
     const getRoleName = (role) => {
         if (!session?.roles) return role;
         return role === "A" ? session.roles.A : session.roles.B;
     };
 
-    // צבעים שונים לכל תפקיד
-    const getRoleColor = (role) => {
-        return role === "A" ? "#6c5ce7" : "#00b894"; // סגול ל-Gemini, ירוק למשתמש
-    };
-
     return (
         <Card>
-            <h1>Role Play Game</h1>
+            <h1 className="quiz-title">Role Play Game</h1>
+            <h3 className="quiz-subtitle">Type your message and press Send to interact</h3>
 
-            <div style={{ maxHeight: "400px", overflowY: "auto", marginBottom: "12px" }}>
+            <div className="chat-box">
                 {messages.map((m, idx) => (
                     <div
                         key={idx}
-                        style={{
-                            marginBottom: "8px",
-                            padding: "6px 10px",
-                            borderRadius: "6px",
-                            backgroundColor: `${getRoleColor(m.role)}20`, // רקע בהיר לפי התפקיד
-                        }}
+                        className={`chat-message ${m.role === "A" ? "role-a" : "role-b"}`}
                     >
-                        <strong style={{ color: getRoleColor(m.role) }}>{getRoleName(m.role)}:</strong>{" "}
-                        {m.text}
+                        <strong className="chat-role">{getRoleName(m.role)}:</strong>{" "}
+                        <div className="chat-text">
+                            <ReactMarkdown>{m.text}</ReactMarkdown>
+                        </div>
                     </div>
                 ))}
+                {typing && (
+                    <div className="chat-message role-a typing">
+                        <strong className="chat-role">{getRoleName("A")}:</strong>{" "}
+                        <span className="chat-text">Typing...</span>
+                    </div>
+                )}
+                <div ref={messagesEndRef} />
             </div>
 
-            <div style={{ marginBottom: "8px" }}>
+            <div className="chat-user-label">
                 <strong>{session?.roles?.B || "You"}:</strong>
             </div>
-            <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                disabled={loading}
-                placeholder="Type your message..."
-                style={{ width: "80%", marginRight: "8px", padding: "6px" }}
-            />
-            <Button onClick={handleSend} disabled={loading || !input.trim()}>
-                Send
-            </Button>
 
-            <div style={{ marginTop: "16px" }}>
-                <Button onClick={() => navigate("/")}>Back to Home</Button>
+            <div className="chat-input-row">
+                <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }
+                    }}
+                    disabled={loading}
+                    placeholder="Type your message..."
+                    className="chat-input"
+                />
+                <Button onClick={handleSend} disabled={loading || !input.trim()}>
+                    Send
+                </Button>
             </div>
+
+            <div className="chat-footer">
+                <button onClick={handleBackHome} className="back-btn">➡️</button>
+                <Button onClick={handleGetFeedback} disabled={feedbackLoading}>
+                    {feedbackLoading ? "Loading Feedback..." : "Get Feedback"}
+                </Button>
+                <Button onClick={handleClearConversation}>clear conversation</Button>
+            </div>
+
+            {feedback && (
+                <div className="feedback-box">
+                    <h3>Feedback</h3>
+                    {feedback.error ? (
+                        <p>{feedback.error}</p>
+                    ) : (
+                        <>
+                            <p><strong>Understanding:</strong> {feedback.understanding}</p>
+                            <p><strong>Comments:</strong> {feedback.comments}</p>
+                        </>
+                    )}
+                </div>
+            )}
         </Card>
     );
 }

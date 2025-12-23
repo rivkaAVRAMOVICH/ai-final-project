@@ -1,4 +1,4 @@
-import { startRolePlaySession, sendRolePlayReply } from '../services/rolePlay.service.js';
+import { startRolePlaySession, sendRolePlayReply, giveUserFeedback } from '../services/rolePlay.service.js';
 
 export async function startRolePlay(req, res) {
   try {
@@ -23,5 +23,18 @@ export async function sendRolePlayMessage(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to send role play message' });
+  }
+}
+
+export async function getFeedback(req, res) {
+  try {
+    const { sessionId } = req.body;
+    if (!sessionId) return res.status(400).json({ error: 'sessionId required' });
+
+    const feedback = await giveUserFeedback(sessionId);
+    res.json(feedback);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get feedback' });
   }
 }

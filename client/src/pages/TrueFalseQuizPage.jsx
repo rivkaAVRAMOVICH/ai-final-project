@@ -1,7 +1,9 @@
+// TrueFalseQuizPage.jsx
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import "../styles/trueFalseQuizPage.css";
 
 export default function TrueFalseQuizPage() {
   const location = useLocation();
@@ -11,11 +13,12 @@ export default function TrueFalseQuizPage() {
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [warning, setWarning] = useState("");
 
   if (!quizData) {
     return (
       <Card>
-        <h2>No quiz data found.</h2>
+        <h2 className="quiz-title">No quiz data found.</h2>
         <Button onClick={() => navigate("/")}>Go Back</Button>
       </Card>
     );
@@ -34,30 +37,34 @@ export default function TrueFalseQuizPage() {
     setSubmitted(true);
   };
 
+  const handleSubmitClick = () => {
+    if (Object.keys(answers).length !== quizData.quiz.questions.length) {
+      setWarning("Answer all questions first");
+      return;
+    }
+    setWarning("");
+    handleSubmit();
+  };
+
   return (
     <Card>
-      <h1>True / False Quiz</h1>
+      <h1 className="quiz-title">True / False Quiz</h1>
+      <h3 className="quiz-subtitle">Select ✔️ for True or ❌ for False</h3>
 
       {quizData.quiz.questions.map((q) => {
-        let bgColor = "";
+        let questionClass = "question-card";
         if (submitted) {
-          bgColor = answers[q.id] === q.correct_answer ? "#d4edda" : "#f8d7da";
+          questionClass +=
+            answers[q.id] === q.correct_answer
+              ? " correct"
+              : " incorrect";
         }
 
         return (
-          <div
-            key={q.id}
-            style={{
-              backgroundColor: bgColor,
-              padding: "12px",
-              marginBottom: "12px",
-              borderRadius: "8px",
-              transition: "background-color 0.3s",
-            }}
-          >
-            <h3>{q.statement}</h3>
+          <div key={q.id} className={questionClass}>
+            <h3 className="question-text">{q.statement}</h3>
 
-            <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+            <div className="answer-buttons">
               {[
                 { label: "✔️", value: true },
                 { label: "❌", value: false },
@@ -69,17 +76,7 @@ export default function TrueFalseQuizPage() {
                     key={btn.label}
                     onClick={() => handleSelect(q.id, btn.value)}
                     disabled={submitted}
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: "6px",
-                      border: isSelected ? "2px solid #0d6efd" : "1px solid #ccc",
-                      backgroundColor: "#fff",
-                      color: "#000",
-                      cursor: "pointer",
-                      fontSize: "20px",
-                      transition: "all 0.2s",
-                      minWidth: "60px",
-                    }}
+                    className={`answer-btn ${isSelected ? "selected" : ""}`}
                   >
                     {btn.label}
                   </button>
@@ -90,14 +87,14 @@ export default function TrueFalseQuizPage() {
         );
       })}
 
+      {warning && <div className="warning-text">{warning}</div>}
+
       {!submitted ? (
-        <Button onClick={handleSubmit} style={{ marginTop: "16px" }}>
-          Submit Quiz
-        </Button>
+        <Button onClick={handleSubmitClick}>Submit Quiz</Button>
       ) : (
-        <div style={{ marginTop: "16px" }}>
+        <div className="score-box">
           <h2>
-            🏅 Your Score: {score} / {quizData.quiz.questions.length} 
+            🏅 Your Score: {score} / {quizData.quiz.questions.length}
           </h2>
           <Button onClick={() => navigate("/")}>Back to Home</Button>
         </div>
