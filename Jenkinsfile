@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Install Backend') {
             steps {
                 dir('server') {
@@ -10,18 +11,26 @@ pipeline {
             }
         }
 
-        // stage('Test Backend') {
-        //     steps {
-        //         dir('server') {
-        //             bat 'npm test'
-        //         }
-        //     }
-        // }
+        stage('Test Backend') {
+            steps {
+                dir('server') {
+                    bat 'npm test'
+                }
+            }
+        }
 
         stage('Install Frontend') {
             steps {
                 dir('client') {
                     bat 'npm install'
+                }
+            }
+        }
+
+        stage('Test Frontend') {
+            steps {
+                dir('client') {
+                    bat 'npm test'
                 }
             }
         }
